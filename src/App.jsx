@@ -7,7 +7,7 @@ function App() {
 
   return (
     <>
-      <p className="text-9xl text-black">syntaXers;</p>
+      <p className="text-9xl ">syntaXers;</p>
     </>
   );
 }
