@@ -1,0 +1,39 @@
+.my-card {
+  margin: 1rem;
+  border-radius: 0.5rem;
+  min-width: 300px;
+  flex: 1;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow);
+}
+.my-card:hover {
+  transform: translateY(-3px);
+}
+.my-card p {
+  margin: 0;
+}
+.ant-card-head-title {
+  font-weight: 600;
+}
+
+.my-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2rem auto;
+  width: 94%;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.card-blue{
+  background: linear-gradient(67.6deg, rgb(225, 242, 254) -2.8%, rgb(193, 224, 250) 44.6%, rgb(19, 116, 197) 102.4%);
+}
+
+.card-green {
+  background: linear-gradient(67.6deg, rgb(225, 254, 225) -2.8%, rgb(193, 250, 193) 44.6%, rgb(19, 197, 116) 102.4%);
+}
+
+.card-red {
+  background: linear-gradient(67.6deg, rgb(254, 225, 225) -2.8%, rgb(250, 193, 193) 44.6%, rgb(197, 19, 19) 102.4%);
+}

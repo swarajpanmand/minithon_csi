@@ -20,7 +20,7 @@ fi
 include_extensions=("js" "jsx" "ts" "tsx" "css" "scss" "html" "py" "rb" "php")
 
 # List of file types to ignore
-ignore_files=("*.ico" "*.png" "*.jpg" "*.jpeg" "*.gif" "*.svg" "*.min.js" "*.min.css")
+ignore_files=("*.ico" "*.png" "*.jpg" "*.jpeg" "*.gif" "*.svg" "*.min.js" "*.min.css" ".css" ".html")
 
 # List of directories to exclude
 exclude_dirs=("node_modules" ".git" "build" "dist")
