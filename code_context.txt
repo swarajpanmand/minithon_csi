@@ -1,0 +1,1531 @@
+// File: eslint.config.js
+import js from '@eslint/js'
+import globals from 'globals'
+import react from 'eslint-plugin-react'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+
+export default [
+  { ignores: ['dist'] },
+  {
+    files: ['**/*.{js,jsx}'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
+      },
+    },
+    settings: { react: { version: '18.3' } },
+    plugins: {
+      react,
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      ...react.configs.recommended.rules,
+      ...react.configs['jsx-runtime'].rules,
+      ...reactHooks.configs.recommended.rules,
+      'react/jsx-no-target-blank': 'off',
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
+    },
+  },
+]
+
+// File: src/App.jsx
+import Header from "./components/Header";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import Signup from "./pages/Signup";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+function App() {
+  return (
+    <>
+      <ToastContainer />
+      <Router>
+        <Routes>
+          {/* <Route path="/" element={<Signup />} /> */}
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      </Router>
+    </>
+  );
+}
+
+export default App;
+
+// File: src/components/BillCalendar/BillCalendar.jsx
+import React from 'react';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+
+function BillCalendar({ userData, setUserData }) {
+  const handleDateClick = (arg) => {
+    // Open a modal to add a new bill
+  };
+
+  const handleEventDrop = (info) => {
+    // Update the bill date when it's dragged to a new date
+    setUserData(prevData => ({
+      ...prevData,
+      bills: prevData.bills.map(bill => 
+        bill.id === info.event.id ? { ...bill, date: info.event.start } : bill
+      )
+    }));
+  };
+
+  return (
+    <div className="bill-calendar">
+      <h2>Bill Payment Calendar</h2>
+      <FullCalendar
+        plugins={[dayGridPlugin, interactionPlugin]}
+        initialView="dayGridMonth"
+        editable={true}
+        events={userData.bills}
+        dateClick={handleDateClick}
+        eventDrop={handleEventDrop}
+      />
+    </div>
+  );
+}
+
+export default BillCalendar;
+// File: src/components/BudgetManager/BudgetManager.jsx
+import React, { useState, useEffect } from 'react';
+import { Line } from 'react-chartjs-2';
+
+function BudgetManager({ userData, setUserData }) {
+  const [predictions, setPredictions] = useState({});
+
+  useEffect(() => {
+    // Calculate predictions based on historical data
+    const newPredictions = calculatePredictions(userData.expenses);
+    setPredictions(newPredictions);
+  }, [userData.expenses]);
+
+  const calculatePredictions = (expenses) => {
+    // Implement prediction logic here
+  };
+
+  const setBudget = (category, amount) => {
+    setUserData(prevData => ({
+      ...prevData,
+      budgets: {
+        ...prevData.budgets,
+        [category]: amount
+      }
+    }));
+  };
+
+  return (
+    <div className="budget-manager">
+      <h2>Budget Manager</h2>
+      {Object.entries(userData.budgets).map(([category, budget]) => (
+        <div key={category} className="budget-item">
+          <h3>{category}</h3>
+          <input
+            type="number"
+            value={budget}
+            onChange={(e) => setBudget(category, parseFloat(e.target.value))}
+          />
+          <div className="prediction">
+            Predicted spending: ${predictions[category]}
+            {predictions[category] > budget && (
+              <div className="alert">Warning: Predicted to exceed budget!</div>
+            )}
+          </div>
+        </div>
+      ))}
+      <Line data={chartData} options={chartOptions} />
+    </div>
+  );
+}
+
+export default BudgetManager;
+// File: src/components/Button/index.jsx
+import React from "react";
+import "./styles.css";
+
+function Button({ text, onClick, blue, disabled }) {
+  return (
+    <div className={blue ? "btn btn-blue" : "btn"} onClick={onClick} disabled={disabled}>
+      {text}
+    </div>
+  );
+}
+
+export default Button;
+
+// File: src/components/Cards/index.jsx
+import React from "react";
+import "./styles.css";
+import { Card, Row } from "antd";
+import Button from "../Button";
+
+function Cards({income, expense, totalBalance, showIncomeModal, showExpenseModal, resetBalance}) {
+  return (
+    <div>
+      <Row className="my-row">
+        <Card bordered={true} className="my-card card-blue">
+          <h2>Balance</h2>
+          <p>₹{totalBalance}</p>
+          <Button text="Reset Balance" onClick={resetBalance}/>
+        </Card>
+        <Card bordered={true} className="my-card card-green">
+          <h2>Income</h2>
+          <p>₹{income}</p>
+          <Button text="Add Income" onClick={showIncomeModal} blue={false}/>
+        </Card>
+        <Card bordered={true} className="my-card card-red">
+          <h2>Expenses</h2>
+          <p>₹{expense}</p> 
+          <Button text="Add Expenses" onClick={showExpenseModal} blue={false}/>
+        </Card>
+      </Row>
+    </div>
+  );
+}
+
+export default Cards;
+
+// File: src/components/Charts/index.jsx
+import React from 'react';
+import { Line, Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title } from 'chart.js';
+
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title);
+
+function ChartComponent({ sortedTransactions }) {
+  const lineChartData = {
+    labels: sortedTransactions.map(item => item.date),
+    datasets: [
+      {
+        label: 'Transactions',
+        data: sortedTransactions.map(item => item.amount),
+        fill: false,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+      }
+    ]
+  };
+
+  const spendingData = sortedTransactions.filter(transaction => transaction.type === "expense");
+  
+  const pieChartData = {
+    labels: [...new Set(spendingData.map(item => item.tag))],
+    datasets: [{
+      data: Object.values(spendingData.reduce((acc, item) => {
+        acc[item.tag] = (acc[item.tag] || 0) + item.amount;
+        return acc;
+      }, {})),
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(153, 102, 255, 0.2)',
+      ],
+      borderColor: [
+        'rgba(255, 99, 132, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+      ],
+      borderWidth: 1,
+    }]
+  };
+
+  return (
+    <div className="charts-wrapper">
+      <div style={{borderRadius:"0.5rem", boxShadow:"0 0 10px rgba(0,0,0,0.1)", width:"100%", padding:"2rem"}}>
+        <h2 style={{ marginTop: 0 }}>Your Analytics</h2>
+        <Line data={lineChartData} />
+      </div>
+      {spendingData.length > 0 ? (
+        <div style={{ borderRadius: "0.5rem", boxShadow: "0 0 10px rgba(0,0,0,0.1)", width: "60%", padding: "2rem" }}>
+          <h2>Your Spendings</h2>
+          <Pie data={pieChartData} />
+        </div>
+      ) : (
+        <div style={{ borderRadius: "0.5rem", boxShadow: "0 0 10px rgba(0,0,0,0.1)", height:"298px", padding: "2rem", textAlign:"center", fontSize:"0.8rem" }}>
+          <p>Looks like you have not spent anything.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default ChartComponent;
+// File: src/components/ExpenseTracker/ExpenseTracker.jsx
+import React, { useState, useEffect } from 'react';
+import { Pie, Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
+
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
+
+function ExpenseTracker({ userData, setUserData }) {
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [timeFilter, setTimeFilter] = useState('month');
+
+  const addExpense = (expense) => {
+    setUserData(prevData => ({
+      ...prevData,
+      expenses: [...prevData.expenses, expense]
+    }));
+  };
+
+  const getChartData = () => {
+    // Logic to prepare chart data based on selectedCategory and timeFilter
+    // This would involve grouping and summing expenses
+  };
+
+  const pieData = {
+    // Prepare data for pie chart
+  };
+
+  const barData = {
+    // Prepare data for bar chart
+  };
+
+  return (
+    <div className="expense-tracker">
+      <h2>Expense Tracker</h2>
+      <div className="filters">
+        {/* Add filter controls here */}
+      </div>
+      <div className="charts">
+        <Pie data={pieData} onClick={(_, element) => {
+          if (element.length > 0) {
+            const category = element[0].index;
+            setSelectedCategory(category);
+          }
+        }} />
+        <Bar data={barData} />
+      </div>
+      <form onSubmit={handleSubmit}>
+        {/* Add expense form */}
+      </form>
+    </div>
+  );
+}
+
+export default ExpenseTracker;
+// File: src/components/FinancialWellnessScore/FinancialWellnessScore.jsx
+
+import React, { useEffect, useState } from 'react';
+
+function FinancialWellnessScore({ userData }) {
+  const [score, setScore] = useState(0);
+
+  useEffect(() => {
+    const calculatedScore = calculateScore(userData);
+    setScore(calculatedScore);
+  }, [userData]);
+
+  const calculateScore = (data) => {
+    let score = 0;
+    // Calculate score based on various factors:
+    // 1. Budget adherence
+    // 2. Savings rate
+    // 3. Debt-to-income ratio
+    // 4. Emergency fund status
+    // 5. Investment diversification
+    // ... implement detailed scoring logic here
+    return score;
+  };
+
+  return (
+    <div className="financial-wellness-score">
+      <h2>Financial Wellness Score</h2>
+      <div className="score">{score}</div>
+      <div className="score-breakdown">
+        {/* Add detailed breakdown of score components */}
+      </div>
+      <div className="recommendations">
+        {/* Add personalized recommendations based on the score */}
+      </div>
+    </div>
+  );
+}
+
+export default FinancialWellnessScore;
+// File: src/components/FinancialWellnessScore.jsx
+import  { useEffect, useState } from 'react';
+import { Progress, Tooltip } from 'antd';
+import { InfoCircleOutlined } from '@ant-design/icons';
+import './FinancialWellnessScore.css';
+
+function FinancialWellnessScore({ userData }) {
+  const [score, setScore] = useState(0);
+  const [breakdown, setBreakdown] = useState({});
+
+  useEffect(() => {
+    const calculatedScore = calculateScore(userData);
+    setScore(calculatedScore.overall);
+    setBreakdown(calculatedScore.breakdown);
+  }, [userData]);
+
+  const calculateScore = (data) => {
+    let budgetAdherence = calculateBudgetAdherence(data.expenses, data.budgets);
+    let savingsRate = calculateSavingsRate(data.income, data.expenses);
+    let debtToIncomeRatio = calculateDebtToIncomeRatio(data.debts, data.income);
+    let emergencyFundStatus = calculateEmergencyFundStatus(data.savings, data.expenses);
+    let investmentDiversification = calculateInvestmentDiversification(data.investments);
+
+    let overall = (
+      budgetAdherence * 0.25 +
+      savingsRate * 0.25 +
+      debtToIncomeRatio * 0.2 +
+      emergencyFundStatus * 0.2 +
+      investmentDiversification * 0.1
+    ) * 100;
+
+    return {
+      overall: Math.round(overall),
+      breakdown: {
+        budgetAdherence,
+        savingsRate,
+        debtToIncomeRatio,
+        emergencyFundStatus,
+        investmentDiversification
+      }
+    };
+  };
+
+  const calculateBudgetAdherence = (expenses, budgets) => {
+    // Implementation details
+    return 0.8; // Placeholder value
+  };
+
+  const calculateSavingsRate = (income, expenses) => {
+    // Implementation details
+    return 0.15; // Placeholder value
+  };
+
+  const calculateDebtToIncomeRatio = (debts, income) => {
+    // Implementation details
+    return 0.7; // Placeholder value
+  };
+
+  const calculateEmergencyFundStatus = (savings, expenses) => {
+    // Implementation details
+    return 0.6; // Placeholder value
+  };
+
+  const calculateInvestmentDiversification = (investments) => {
+    // Implementation details
+    return 0.5; // Placeholder value
+  };
+
+  const getScoreColor = (score) => {
+    if (score >= 80) return '#52c41a';
+    if (score >= 60) return '#faad14';
+    return '#f5222d';
+  };
+
+  return (
+    <div className="financial-wellness-score">
+      <h2>Financial Wellness Score</h2>
+      <Tooltip title="This score represents your overall financial health based on various factors">
+        <InfoCircleOutlined style={{ marginLeft: '8px' }} />
+      </Tooltip>
+      <Progress
+        type="circle"
+        percent={score}
+        format={(percent) => `${percent}`}
+        strokeColor={getScoreColor(score)}
+        width={120}
+      />
+      <div className="score-breakdown">
+        <h3>Score Breakdown</h3>
+        <ul>
+          {Object.entries(breakdown).map(([key, value]) => (
+            <li key={key}>
+              {key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}: {Math.round(value * 100)}%
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="recommendations">
+        <h3>Recommendations</h3>
+        <ul>
+          {score < 60 && <li>Consider reducing non-essential expenses to improve your savings rate.</li>}
+          {breakdown.debtToIncomeRatio < 0.5 && <li>Focus on paying down high-interest debt to improve your debt-to-income ratio.</li>}
+          {breakdown.emergencyFundStatus < 0.5 && <li>Try to build up your emergency fund to cover 3-6 months of expenses.</li>}
+          {breakdown.investmentDiversification < 0.7 && <li>Consider diversifying your investment portfolio to reduce risk.</li>}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+export default FinancialWellnessScore;
+// File: src/components/Header/index.jsx
+import React, { useEffect } from "react";
+import "./styles.css";
+import { auth } from "../../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { Navigate, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { getAuth, signOut } from "firebase/auth";
+import defaultImg from "../../assets/user.svg";
+
+function Header() {
+  const [user, loading] = useAuthState(auth);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, loading]);
+  function logoutFnc() {
+    try {
+      signOut(auth)
+        .then(() => {
+          // Sign-out successful.
+          toast.success("Loggeed out Successfully!");
+          navigate("/");
+        })
+        .catch((error) => {
+          toast.error(error.message);
+        });
+    } catch (e) {
+      toast.error(e.message);
+    }
+  }
+  return (
+    <div className="navbar">
+      <p className="logo">FinanceFlow.</p>
+      {user && (
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <img
+            src={user.photoURL ? user.photoURL : defaultImg}
+            alt=""
+            style={{ borderRadius: "15%",height:"1.5rem",
+            width:"1.5rem" }}
+          />
+          <p className="logo link" onClick={logoutFnc}>
+            Logout
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default Header;
+
+// File: src/components/Input/index.jsx
+import React from "react";
+import "./styles.css";
+
+function Input({ label, state, setState, placeholder,type }) {
+  return (
+    <div className="input-wrapper">
+      <p className="label-input">{label}</p>
+      <input
+        type={type}
+        className="custom-input"
+        value={state}
+        placeholder={placeholder}
+        onChange={(e) => setState(e.target.value)}
+        required
+      />
+    </div>
+  );
+}
+
+export default Input;
+
+// File: src/components/Modals/AddExpense.jsx
+import React from "react";
+import { Button, Modal, Form, Input, DatePicker, Select } from "antd";
+
+function AddExpense({ isExpenseModalVisible, handleExpenseCancel, onFinish }) {
+  const [form] = Form.useForm();
+
+  return (
+    <Modal
+      style={{ fontWeight: 600}}
+      title="Add Expense"
+      visible={isExpenseModalVisible}
+      onCancel={handleExpenseCancel}
+      footer={null}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={(values) => {
+          onFinish(values, "expense");
+          form.resetFields();
+        }}
+      >
+        <Form.Item
+          label="Name"
+          name="name"
+          rules={[
+            {
+              required: true,
+              message: "Please input the name of the transaction!",
+            },
+          ]}
+        >
+          <Input type="text" className="custom-input" />
+        </Form.Item>
+
+        <Form.Item
+          label="Amount"
+          name="amount"
+          rules={[
+            {
+              required: true,
+              message: "Please input the expense amount!",
+            },
+          ]}
+        >
+          <Input type="number" className="custom-input" />
+        </Form.Item>
+
+        <Form.Item
+          label="Date"
+          name="date"
+          rules={[
+            {
+              required: true,
+              message: "Please input select the expense date!",
+            },
+          ]}
+        >
+          <DatePicker className="custom-input" format="YYYY-MM-DD"/>
+        </Form.Item>
+
+        <Form.Item
+          label="Tag"
+          name="tag"
+          rules={[
+            {
+              required: true,
+              message: "Please select a tag!",
+            },
+          ]}
+        >
+          <Select className="select-input-2">
+            <Select.Option value="food">Food</Select.Option>
+            <Select.Option value="education">Education</Select.Option>
+            <Select.Option value="office">Office</Select.Option>
+            <Select.Option value="utilities">Utilities (electricity, water, gas)</Select.Option>
+            <Select.Option value="entertainment">Entertainment (movies, concerts, subscriptions)</Select.Option>
+            <Select.Option value="shopping">Shopping</Select.Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item>
+          <Button className="btn btn-blue" type="primary" htmlType="submit">Add Expense</Button>
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+}
+
+export default AddExpense;
+
+// File: src/components/Modals/AddIncome.jsx
+import React from "react";
+import { Button, Modal, Form, Input, DatePicker, Select } from "antd";
+
+function AddIncome({ isIncomeModalVisible, handleIncomeCancel, onFinish }) {
+  const [form] = Form.useForm();
+
+  return (
+    <Modal
+      style={{ fontWeight: 600 }}
+      title="Add Income"
+      visible={isIncomeModalVisible}
+      onCancel={handleIncomeCancel}
+      footer={null}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={(values) => {
+          onFinish(values, "income");
+          form.resetFields();
+        }}
+      >
+        <Form.Item
+          label="Name"
+          name="name"
+          rules={[
+            {
+              required: true,
+              message: "Please input the name of the transaction!",
+            },
+          ]}
+        >
+          <Input type="text" className="custom-input" />
+        </Form.Item>
+
+        <Form.Item
+          label="Amount"
+          name="amount"
+          rules={[
+            {
+              required: true,
+              message: "Please input the income amount!",
+            },
+          ]}
+        >
+          <Input type="number" className="custom-input" />
+        </Form.Item>
+
+        <Form.Item
+          label="Date"
+          name="date"
+          rules={[
+            {
+              required: true,
+              message: "Please select the income date!",
+            },
+          ]}
+        >
+          <DatePicker className="custom-input" format="YYYY-MM-DD" />
+        </Form.Item>
+
+        <Form.Item
+          label="Tag"
+          name="tag"
+          rules={[
+            {
+              required: true,
+              message: "Please select a tag!",
+            },
+          ]}
+        >
+          <Select className="select-input-2">
+            <Select.Option value="salary">Salary</Select.Option>
+            <Select.Option value="freelance">Freelance</Select.Option>
+            <Select.Option value="investment">Investment</Select.Option>
+            <Select.Option value="bonus">Bonus</Select.Option>
+            <Select.Option value="gift">Gifts/Donations</Select.Option>
+            <Select.Option value="interest">Interest Income</Select.Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item>
+          <Button className="btn btn-blue" type="primary" htmlType="submit">
+            Add Income
+          </Button>
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+}
+
+export default AddIncome;
+// File: src/components/NoTransactions/index.jsx
+import React from "react";
+import transactions from "../../assets/cards.png";
+
+function NoTransactions() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%",
+        flexDirection: "column",
+        marginBottom: "2rem",
+        marginTop: "-3rem",
+      }}
+    >
+      <img
+        src={transactions}
+        alt=""
+        style={{ width: "330px" }}
+      />
+      <p style={{ textAlign: "center", fontSize: "0.85rem" }}>
+        You have no transactions currently!
+      </p>
+    </div>
+  );
+}
+
+export default NoTransactions;
+
+// File: src/components/SavingsGoals/SavingsGoals.jsx
+import React from 'react';
+
+function SavingsGoals({ userData, setUserData }) {
+  const addGoal = (goal) => {
+    setUserData(prevData => ({
+      ...prevData,
+      savingsGoals: [...prevData.savingsGoals, goal]
+    }));
+  };
+
+  const updateGoal = (index, updatedGoal) => {
+    setUserData(prevData => ({
+      ...prevData,
+      savingsGoals: prevData.savingsGoals.map((goal, i) => 
+        i === index ? updatedGoal : goal
+      )
+    }));
+  };
+
+  const reallocateFunds = (fromIndex, toIndex, amount) => {
+    setUserData(prevData => {
+      const newGoals = [...prevData.savingsGoals];
+      newGoals[fromIndex].currentAmount -= amount;
+      newGoals[toIndex].currentAmount += amount;
+      return { ...prevData, savingsGoals: newGoals };
+    });
+  };
+
+  return (
+    <div className="savings-goals">
+      <h2>Savings Goals</h2>
+      {userData.savingsGoals.map((goal, index) => (
+        <div key={index} className="goal">
+          <h3>{goal.name}</h3>
+          <progress value={goal.currentAmount} max={goal.targetAmount} />
+          <p>{(goal.currentAmount / goal.targetAmount * 100).toFixed(2)}% complete</p>
+          {/* Add controls for updating and reallocating funds */}
+        </div>
+      ))}
+      <form onSubmit={handleSubmit}>
+        {/* Add form for creating new goals */}
+      </form>
+    </div>
+  );
+}
+
+export default SavingsGoals;
+// File: src/components/SignupSignin/index.jsx
+  import React, { useState } from "react";
+  import "./styles.css";
+  import Input from "../Input";
+  import Button from "../Button";
+  import { createUserWithEmailAndPassword } from "firebase/auth";
+  import { signInWithEmailAndPassword } from "firebase/auth";
+  import { toast } from "react-toastify";
+  import { auth, db } from "../../firebase";
+  import { useNavigate } from "react-router-dom";
+  import { doc, getDoc, setDoc } from "firebase/firestore";
+  import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+  import { provider } from "../../firebase";
+
+  function SignupSigninComponent() {
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [loginForm, setLoginForm] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+
+    function signupWithEmail(event) {
+      setLoading(true);
+      event.preventDefault();
+      console.log(name);
+      console.log(email);
+      console.log(password);
+      console.log(confirmPassword);
+      if (name != "" && email != "" && password != "" && confirmPassword != "") {
+        if (password === confirmPassword) {
+          createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+              // Signed up
+              const user = userCredential.user;
+              console.log("user", user);
+              toast.success("User Created!");
+              setLoading(false);
+              setConfirmPassword("");
+              setName("");
+              setEmail("");
+              setPassword("");
+              createDoc(user);
+              navigate("/dashboard");
+              // Create a doc with user id with the following id
+            })
+            .catch((error) => {
+              const errorCode = error.code;
+              const errorMessage = error.message;
+              toast.error(errorMessage);
+              setLoading(false);
+              // ..
+            });
+        } else {
+          toast.error("Password and Confirm Password dont match");
+          setLoading(false);
+        }
+      } else {
+        toast.warning("All fields are mandatory!");
+        setLoading(false);
+      }
+    }
+
+    function loginUsingEmail(event) {
+      setLoading(true);
+      event.preventDefault();
+      console.log(email);
+      console.log(password);
+
+      if (email != "" && password != "") {
+        signInWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            // Signed in
+            const user = userCredential.user;
+            toast.success("User logged In!");
+            console.log("User logged in", user);
+            navigate("/dashboard");
+            setLoading(false);
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            toast.error(errorMessage);
+            setLoading(false);
+          });
+      } else {
+        toast.warning("All fields are mandatory!");
+        setLoading(false);
+      }
+    }
+
+    async function createDoc(user) {
+      setLoading(true);
+      if (!user) return;
+
+      const useRef = doc(db, "users", user.uid);
+      const userData = await getDoc(useRef);
+
+      if (!userData.exists()) {
+        try {
+          await setDoc(doc(db, "users", user.uid), {
+            name: user.displayName ? user.displayName : name,
+            email: user.email,
+            photoURL: user.photoURL ? user.photoURL : "",
+            createdAt: new Date(),
+          });
+          toast.success("Doc Created");
+          setLoading(false);
+        } catch (e) {
+          toast.error(e.message);
+          setLoading(false);
+        }
+      } else {
+        // toast.error("Doc already exists!");
+        setLoading(false);
+      }
+    }
+
+    function googgleAuth() {
+      setLoading(true);
+      try {
+        signInWithPopup(auth, provider)
+          .then((result) => {
+            // This gives you a Google Access Token. You can use it to access the Google API.
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+            // The signed-in user info.
+            const user = result.user;
+            console.log("user>>", user);
+            createDoc(user);
+            setLoading(false);
+            navigate("/dashboard");
+            toast.success("User authenticated");
+            // IdP data available using getAdditionalUserInfo(result)
+            // ...
+          })
+          .catch((error) => {
+            setLoading(false);
+            // Handle Errors here.
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            toast.error(errorMessage)
+          });
+      } catch (e) {
+        toast.error(e.message);
+        setLoading(false);
+      }
+    }
+
+    return (
+      <>
+        {loginForm ? (
+          <div className="signup-wrapper">
+            <h2 className="title">
+              Login on <span style={{ color: "var(--theme)" }}>FinanceFlow.</span>
+            </h2>
+            <form>
+              <Input
+                type="email"
+                label={"Email"}
+                state={email}
+                placeholder={"you@example.com"}
+                setState={setEmail}
+              />
+              <Input
+                type="password"
+                label={"Password"}
+                state={password}
+                placeholder={"Password"}
+                setState={setPassword}
+              />
+
+              <Button
+                disabled={loading}
+                text={loading ? "Loading..." : "Login using Email"}
+                onClick={(e) => loginUsingEmail(e)}
+              />
+              <p className="p-login">or</p>
+              <Button
+                onClick={googgleAuth}
+                text={loading ? "Loading..." : "Login with Google"}
+                blue={true}
+              />
+              <p className="p-login" onClick={() => setLoginForm(!loginForm)}>
+                Or Dont have an Account?{" "}
+                <span style={{ color: "var(--theme)" }}>Click here</span>
+              </p>
+            </form>
+          </div>
+        ) : (
+          <div className="signup-wrapper">
+            <h2 className="title">
+              Sign Up on{" "}
+              <span style={{ color: "var(--theme)" }}>FinanceFlow.</span>
+            </h2>
+            <form>
+              <Input
+                label={"Full Name"}
+                state={name}
+                placeholder={"Full Name"}
+                setState={setName}
+              />
+              <Input
+                type="email"
+                label={"Email"}
+                state={email}
+                placeholder={"you@example.com"}
+                setState={setEmail}
+              />
+              <Input
+                type="password"
+                label={"Password"}
+                state={password}
+                placeholder={"Password"}
+                setState={setPassword}
+              />
+              <Input
+                type="password"
+                label={"Confirm Password"}
+                state={confirmPassword}
+                placeholder={"Confirm Password"}
+                setState={setConfirmPassword}
+              />
+              <Button
+                disabled={loading}
+                text={loading ? "Loading..." : "Signup using Email"}
+                onClick={(e) => signupWithEmail(e)}
+              />
+              <p className="p-login">or</p>
+              <Button
+                onClick={googgleAuth}
+                text={loading ? "Loading..." : "Signup with Google"}
+                blue={true}
+              />
+              <p className="p-login" onClick={() => setLoginForm(!loginForm)}>
+                Or Have an Account Already?{" "}
+                <span style={{ color: "var(--theme)" }}>Click here</span>
+              </p>
+            </form>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  export default SignupSigninComponent;
+
+// File: src/components/TransactionsTable/index.jsx
+import React, { useState } from "react";
+import "./styles.css";
+import { Input, Radio, Select, Table } from "antd";
+import { Camera, Search } from "react-feather";
+import Papa, { unparse, parse } from "papaparse";
+import { toast } from "react-toastify";
+
+function TransactionsTable({
+  transactions,
+  addTransaction,
+  fetchTransactions,
+}) {
+  const { Option } = Select;
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [sortKey, setSortKey] = useState("");
+
+  const columns = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
+    },
+    {
+      title: "Tag",
+      dataIndex: "tag",
+      key: "tag",
+    },
+    {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+    },
+    {
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+    },
+  ];
+
+  let filteredTransactions = transactions.filter(
+    (item) =>
+      item.name.toLowerCase().includes(search.toLowerCase()) &&
+      item.type.includes(typeFilter)
+  );
+
+  let sortedTransactions = filteredTransactions.sort((a, b) => {
+    if (sortKey === "date") {
+      return new Date(a.date) - new Date(b.date);
+    } else if (sortKey === "amount") {
+      return a.amount - b.amount;
+    } else {
+      return 0;
+    }
+  });
+
+  function exportCSV() {
+    // Specifying fields and data explicitly
+    var csv = unparse({
+      fields: ["name", "type", "tag", "date", "amount"],
+      data: transactions,
+    });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "transactions.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function importCSV(event) {
+    event.preventDefault();
+    try {
+      parse(event.target.files[0], {
+        header: true,
+        complete: async function (results) {
+          for (const transaction of results.data) {
+            console.log("Transactions", transaction);
+            const newTransaction = {
+              ...transaction,
+              amount: parseFloat(transaction.amount),
+            };
+            await addTransaction(newTransaction, true);
+          }
+        },
+      });
+      toast.success("All transactions added!");
+      fetchTransactions();
+      event.target.files = null;
+    } catch (e) {
+      toast.error(e.message);
+    }
+  }
+
+  return (
+    <div style={{ width: "auto", padding: "0rem 4rem" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "1rem",
+          alignItems: "center",
+          marginBottom: "1rem",
+        }}
+      >
+        <div className="input-flex">
+          <Search size={16} color="#868382" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by Name"
+          />
+        </div>
+        <Select
+          className="select-input"
+          onChange={(value) => setTypeFilter(value)}
+          value={typeFilter}
+          placeholder="Filter"
+          allowClear
+        >
+          <Option value="">All</Option>
+          <Option value="income">Income</Option>
+          <Option value="expense">Expense</Option>
+        </Select>
+      </div>
+      <div className="my-table">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
+            marginBottom: "1rem",
+          }}
+        >
+          <h2>My Transactions</h2>
+          <Radio.Group
+            className="input-radio"
+            onChange={(e) => setSortKey(e.target.value)}
+            value={sortKey}
+          >
+            <Radio.Button value="">No Sort</Radio.Button>
+            <Radio.Button value="date">Sort by Date</Radio.Button>
+            <Radio.Button value="amount">Sort by Amount</Radio.Button>
+          </Radio.Group>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "1rem",
+            }}
+          >
+            <button className="btn" onClick={exportCSV}>
+              Export to CSV
+            </button>
+            <label htmlFor="file-csv" className="btn btn-blue">
+              Import from CSV
+            </label>
+            <input
+              type="file"
+              id="file-csv"
+              accept=".csv"
+              required
+              onChange={importCSV}
+              style={{ display: "none" }}
+            />
+          </div>
+        </div>
+
+        <Table dataSource={sortedTransactions} columns={columns} />
+      </div>
+    </div>
+  );
+}
+
+export default TransactionsTable;
+
+// File: src/firebase.js
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAZWJZ_S4QSZVR-GukZqLLm8E6-_WG-OmQ",
+  authDomain: "financeflow-6d9cd.firebaseapp.com",
+  projectId: "financeflow-6d9cd",
+  storageBucket: "financeflow-6d9cd.appspot.com",
+  messagingSenderId: "956926070616",
+  appId: "1:956926070616:web:123575d8de38276eb65f2d",
+  measurementId: "G-E8EXYY6PXP",
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+export { db, auth, provider, doc, setDoc };
+
+// File: src/main.jsx
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App.jsx";
+import "./index.css";
+import "./App.css";
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+// File: src/pages/Dashboard.jsx
+import React, { useEffect, useState } from "react";
+import Header from "../components/Header";
+import Cards from "../components/Cards";
+import AddExpense from "../components/Modals/AddExpense";
+import AddIncome from "../components/Modals/AddIncome";
+import {
+  addDoc,
+  collection,
+  getDoc,
+  getDocs,
+  query,
+  deleteDoc,
+} from "firebase/firestore";
+import { auth, db } from "../firebase";
+import { toast } from "react-toastify";
+import { useAuthState } from "react-firebase-hooks/auth";
+import TransactionsTable from "../components/TransactionsTable";
+import ChartComponent from "../components/Charts";
+import NoTransactions from "../components/NoTransactions";
+import FinancialWellnessScore from "../components/FinancialWellnessScore";
+
+function Dashboard() {
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [user] = useAuthState(auth);
+  const [isExpenseModalVisible, setIsExpenseModalVisible] = useState(false);
+  const [isIncomeModalVisible, setIsIncomeModalVisible] = useState(false);
+  const [income, setIncome] = useState(0);
+  const [expense, setExpense] = useState(0);
+  const [totalBalance, setTotalBalance] = useState(0);
+
+  const [userData, setUserData] = useState({
+    income: 0,
+    expenses: [],
+    budgets: {},
+    debts: [],
+    savings: 0,
+    investments: [],
+  });
+
+  const showExpenseModal = () => {
+    setIsExpenseModalVisible(true);
+  };
+
+  const showIncomeModal = () => {
+    setIsIncomeModalVisible(true);
+  };
+
+  const handleExpenseCancel = () => {
+    setIsExpenseModalVisible(false);
+  };
+
+  const handleIncomeCancel = () => {
+    setIsIncomeModalVisible(false);
+  };
+
+  const onFinish = (values, type) => {
+    const newTransaction = {
+      type: type,
+      date: values.date,
+      amount: parseFloat(values.amount),
+      tag: values.tag,
+      name: values.name,
+    };
+    addTransaction(newTransaction);
+  };
+
+  async function addTransaction(transaction, many) {
+    try {
+      const docRef = await addDoc(
+        collection(db, `users/${user.uid}/transactions`),
+        transaction
+      );
+      if (!many) toast.success("Transaction Added!");
+      let newArr = transactions;
+      newArr.push(transaction);
+      setTransactions(newArr);
+      calculateBalance();
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      if (!many) toast.error("Couldn't add transaction");
+    }
+  }
+
+  useEffect(() => {
+    fetchUserData();
+  }, [user]);
+
+  const fetchUserData = async () => {
+    if (user) {
+      const userDoc = await getDoc(doc(db, `users/${user.uid}`));
+      if (userDoc.exists()) {
+        setUserData(userDoc.data());
+      }
+    }
+  };
+
+  useEffect(() => {
+    calculateBalance();
+  }, [transactions]);
+
+  const calculateBalance = () => {
+    let incomeTotal = 0;
+    let expenseTotal = 0;
+
+    transactions.forEach((transaction) => {
+      if (transaction.type === "income") {
+        incomeTotal += transaction.amount;
+      } else {
+        expenseTotal += transaction.amount;
+      }
+    });
+
+    setIncome(incomeTotal);
+    setExpense(expenseTotal);
+    setTotalBalance(incomeTotal - expenseTotal);
+  };
+
+  async function fetchTransactions() {
+    setLoading(true);
+    if (user) {
+      const q = query(collection(db, `users/${user.uid}/transactions`));
+      const querySnapshot = await getDocs(q);
+      let transactionArray = [];
+      querySnapshot.forEach((doc) => {
+        transactionArray.push(doc.data());
+      });
+      setTransactions(transactionArray);
+      toast.success("Transactions Fetched!");
+    }
+    setLoading(false);
+  }
+
+  const resetBalance = async () => {
+    try {
+      const querySnapshot = await getDocs(
+        collection(db, `users/${user.uid}/transactions`)
+      );
+      querySnapshot.forEach(async (doc) => {
+        await deleteDoc(doc.ref);
+      });
+
+      setIncome(0);
+      setExpense(0);
+      setTotalBalance(0);
+
+      toast.success("Balance reset successfully!");
+      fetchTransactions();
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  let sortedTransactions = transactions.sort((a, b) => {
+    return new Date(a.date) - new Date(b.date);
+  });
+
+  return (
+    <div>
+      <AddIncome
+        isIncomeModalVisible={isIncomeModalVisible}
+        handleIncomeCancel={handleIncomeCancel}
+        onFinish={onFinish}
+      />
+      <Header />
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <>
+          <Cards
+            income={income}
+            expense={expense}
+            totalBalance={totalBalance}
+            resetBalance={resetBalance}
+            showExpenseModal={showExpenseModal}
+            showIncomeModal={showIncomeModal}
+          />
+          <FinancialWellnessScore userData={userData} />
+          {transactions && transactions.length != 0 ? (
+            <ChartComponent sortedTransactions={sortedTransactions} />
+          ) : (
+            <NoTransactions />
+          )}
+          {isIncomeModalVisible && (
+            <AddIncome
+              handleIncomeCancel={handleIncomeCancel}
+              onFinish={onFinish}
+            />
+          )}
+          {isExpenseModalVisible && (
+            <AddExpense
+              handleExpenseCancel={handleExpenseCancel}
+              onFinish={onFinish}
+            />
+          )}
+          <TransactionsTable
+            transactions={transactions}
+            addTransaction={addTransaction}
+            fetchTransactions={fetchTransactions}
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
+export default Dashboard;
+
+// File: src/pages/Signup.jsx
+import React from 'react'
+import Header from '../components/Header'
+import SignupSigninComponent from '../components/SignupSignin'
+
+function Signup() {
+  return (
+    <div>
+      <Header />
+      <div className="wrapper">
+        <SignupSigninComponent />
+      </div>
+    </div>
+  )
+}
+
+export default Signup
+
+// File: tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+// File: vite.config.js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react-swc'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+})
+
