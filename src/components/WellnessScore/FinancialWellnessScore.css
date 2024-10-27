@@ -1,0 +1,68 @@
+.financial-wellness-score {
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  margin: 24px;
+}
+
+.financial-wellness-score h2 {
+  font-size: 20px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.score-breakdown {
+  margin-top: 24px;
+}
+
+.score-breakdown h3 {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.score-breakdown ul {
+  list-style: none;
+  padding: 0;
+}
+
+.score-breakdown li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.recommendations {
+  margin-top: 24px;
+}
+
+.recommendations h3 {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.recommendations ul {
+  list-style: none;
+  padding: 0;
+}
+
+.recommendations li {
+  padding: 8px 0;
+  padding-left: 16px;
+  position: relative;
+}
+
+.recommendations li:before {
+  content: "•";
+  position: absolute;
+  left: 0;
+}
+
+.progress-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 24px 0;
+}
