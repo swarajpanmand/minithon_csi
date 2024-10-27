@@ -38,6 +38,93 @@ export default [
   },
 ]
 
+// File: index.html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/src/assets/asset.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinanceFlow - Your Personal Finance Tracker</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
+// File: postcss.config.js
+// postcss.config.cjs
+module.exports = {
+  plugins: [
+    require('tailwindcss'),
+    require('autoprefixer'),
+  ]
+}
+// File: src/App.css
+.wrapper, .charts-wrapper{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 90vh;
+}
+
+.charts-wrapper{
+    width: 93%;
+    justify-content: space-between;
+    height: auto;
+    padding: 2rem;
+    margin: 2rem;
+    gap: 3rem;
+}
+
+
+/* Add this to your global CSS file or create a new CSS module for modals */
+
+.ant-modal-content {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .ant-modal-header {
+    border-radius: 10px 10px 0 0;
+    background-color: #f0f2f5;
+    padding: 16px 24px;
+  }
+  
+  .ant-modal-title {
+    font-weight: 600;
+    font-size: 18px;
+  }
+  
+  .ant-modal-body {
+    padding: 24px;
+  }
+  
+  .custom-input,
+  .ant-select-selector,
+  .ant-picker {
+    border-radius: 6px !important;
+    border: 1px solid #d9d9d9 !important;
+  }
+  
+  .custom-input:focus,
+  .ant-select-selector:focus,
+  .ant-picker:focus {
+    border-color: #40a9ff !important;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+  }
+  
+  .btn-blue {
+    background-color: #1890ff;
+    border-color: #1890ff;
+  }
+  
+  .btn-blue:hover {
+    background-color: #40a9ff;
+    border-color: #40a9ff;
+  }
 // File: src/App.jsx
 import Header from "./components/Header";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -165,6 +252,41 @@ function Button({ text, onClick, blue, disabled }) {
 
 export default Button;
 
+// File: src/components/Button/styles.css
+.btn {
+    font-size: 0.8rem;
+  color: var(--theme);
+  text-align: center;
+  margin: 1rem 0rem;
+  padding: 0.5rem;
+  background-color: var(--white);
+  border: 1px solid var(--theme);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  height: auto !important;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background-color: var(--theme);
+  color: var(--white);
+}
+
+.btn-blue {
+  background-color: var(--theme);
+  color: var(--white);
+}
+.btn-blue:hover{
+background-color: var(--white);
+color: var(--theme);
+}
+
+.btn-1{
+  background: linear-gradient(67.6deg, rgb(225, 242, 254) -2.8%, rgb(193, 224, 250) 44.6%, rgb(19, 116, 197) 102.4%);
+}
 // File: src/components/Cards/index.jsx
 import React from "react";
 import "./styles.css";
@@ -197,6 +319,46 @@ function Cards({income, expense, totalBalance, showIncomeModal, showExpenseModal
 
 export default Cards;
 
+// File: src/components/Cards/styles.css
+.my-card {
+  margin: 1rem;
+  border-radius: 0.5rem;
+  min-width: 300px;
+  flex: 1;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow);
+}
+.my-card:hover {
+  transform: translateY(-3px);
+}
+.my-card p {
+  margin: 0;
+}
+.ant-card-head-title {
+  font-weight: 600;
+}
+
+.my-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2rem auto;
+  width: 94%;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.card-blue{
+  background: linear-gradient(67.6deg, rgb(225, 242, 254) -2.8%, rgb(193, 224, 250) 44.6%, rgb(19, 116, 197) 102.4%);
+}
+
+.card-green {
+  background: linear-gradient(67.6deg, rgb(225, 254, 225) -2.8%, rgb(193, 250, 193) 44.6%, rgb(19, 197, 116) 102.4%);
+}
+
+.card-red {
+  background: linear-gradient(67.6deg, rgb(254, 225, 225) -2.8%, rgb(250, 193, 193) 44.6%, rgb(197, 19, 19) 102.4%);
+}
 // File: src/components/Charts/index.jsx
 import React from 'react';
 import { Line, Pie } from 'react-chartjs-2';
@@ -359,6 +521,107 @@ function FinancialWellnessScore({ userData }) {
 }
 
 export default FinancialWellnessScore;
+// File: src/components/FinancialWellnessScore.css
+/* FinancialWellnessScore.css */
+
+.financial-wellness-score {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 800px;
+  }
+  
+  .financial-wellness-score h2 {
+    color: var(--theme);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .score-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .score-breakdown {
+    margin-top: 2rem;
+  }
+  
+  .score-breakdown h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .score-breakdown ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .score-breakdown li {
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .score-bar {
+    flex-grow: 1;
+    height: 10px;
+    background-color: #e0e0e0;
+    margin: 0 1rem;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .score-bar-fill {
+    height: 100%;
+    background-color: var(--theme);
+    transition: width 0.5s ease-in-out;
+  }
+  
+  .recommendations {
+    margin-top: 2rem;
+    background-color: #f0f8ff;
+    border-radius: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .recommendations h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: var(--theme);
+  }
+  
+  .recommendations ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .recommendations li {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+  
+  .recommendations li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--theme);
+  }
+  
+  @media (max-width: 768px) {
+    .financial-wellness-score {
+      padding: 1rem;
+      margin: 1rem;
+    }
+  }
 // File: src/components/FinancialWellnessScore.jsx
 import  { useEffect, useState } from 'react';
 import { Progress, Tooltip } from 'antd';
@@ -525,6 +788,37 @@ function Header() {
 
 export default Header;
 
+// File: src/components/Header/styles.css
+.navbar{
+    background-color: var(--white);
+    padding: 1rem 1.5rem;
+    position: sticky;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+}
+
+.logo{
+    color: var(--theme);
+    font-weight: 550;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.link{
+    color: rgb(149, 16, 16);
+    opacity: 0.8;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.link:hover{
+    opacity: 1;
+    transform: translateY(-1px);
+}
 // File: src/components/Input/index.jsx
 import React from "react";
 import "./styles.css";
@@ -547,6 +841,46 @@ function Input({ label, state, setState, placeholder,type }) {
 
 export default Input;
 
+// File: src/components/Input/styles.css
+.input-wrapper{
+  margin-bottom: 0.9rem;
+}
+
+.label-input {
+  text-transform: capitalize;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.custom-input {
+  /* border-width: 0;
+  border-bottom-width: 0.1px;
+  width: 100%;
+  padding: 0.5rem 0rem;
+
+  transition: all 0.3s ease;
+  opacity: 0.8; */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  /* margin-bottom: 10px; */
+  width: 100%;
+  box-sizing: border-box;
+  color: #2C3E50;
+  font-size: 0.8rem;
+  transition: all 0.4s ease;
+}
+
+.custom-input:focus {
+  opacity: 1;
+  outline: none;
+  transform: translate(3px);
+  border-color: var(--theme);
+}
+
+.custom-input::placeholder{
+    color: gray;
+}
 // File: src/components/Modals/AddExpense.jsx
 import React from "react";
 import { Button, Modal, Form, Input, DatePicker, Select } from "antd";
@@ -1059,6 +1393,29 @@ export default SavingsGoals;
 
   export default SignupSigninComponent;
 
+// File: src/components/SignupSignin/styles.css
+
+.signup-wrapper{
+    width: 70%;
+    max-width: 400px;
+    height: auto;
+    box-shadow: var(--shadow);
+    border-radius: 1rem;
+    padding: 1rem 1.5rem;
+}
+
+.title{
+    font-weight:600;
+    font-size: 1.3rem;
+    text-align: center;
+}
+
+.p-login{
+    font-size: 0.8rem;
+    text-align: center;
+    margin: 0;
+    cursor: pointer;
+}
 // File: src/components/TransactionsTable/index.jsx
 import React, { useState } from "react";
 import "./styles.css";
@@ -1245,6 +1602,14 @@ function TransactionsTable({
 
 export default TransactionsTable;
 
+// File: src/components/TransactionsTable/styles.css
+.my-table{
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    margin-bottom: 5rem;
+}
+
 // File: src/firebase.js
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
@@ -1271,6 +1636,100 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 export { db, auth, provider, doc, setDoc };
+
+// File: src/index.css
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@100..900&display=swap');
+/* @import "∼antd/dist/antd.css"; */
+
+:root {
+  --theme: #2970ff;
+  --black: #000;
+  --white: #fff;
+  --shadow: 0px 0px 30px 8px rgba(227, 227, 227, 0.75);
+}
+*{
+  margin: 0;
+  font-family: "Onest", sans-serif !important;
+  font-optical-sizing: auto;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input {
+  font-family: "Onest", sans-serif !important;
+}
+
+
+.custom-input {
+  /* border-width: 0;
+  border-bottom-width: 0.1px;
+  width: 100%;
+  padding: 0.5rem 0rem;
+
+  transition: all 0.3s ease;
+  opacity: 0.8; */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  /* margin-bottom: 10px; */
+  width: 100%;
+  box-sizing: border-box;
+  color: #2c3e50;
+  font-size: 0.8rem;
+  transition: all 0.4s ease;
+}
+
+.custom-input:focus {
+  opacity: 1;
+  outline: none;
+  transform: translate(3px);
+  border-color: var(--theme);
+}
+
+.custom-input::placeholder {
+  color: gray;
+}
+
+.input-flex {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  box-shadow: var(--shadow);
+  border-radius: 0.5rem;
+  padding: 0rem 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.input-flex input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 0;
+  transition: all 0.3s ease;
+}
+
+.input-flex input:focus {
+  outline: none;
+}
+
+.select-input {
+  width: 30%;
+  margin-right: 10;
+  display: flex;
+  align-items: center;
+  box-shadow: var(--shadow);
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.5rem;
+}
+
+.select-input > div {
+  border: 0px solid #fff !important;
+}
+
 
 // File: src/main.jsx
 import React from "react";
