@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Onest:wght@100..900&display=swap');
 /* @import "∼antd/dist/antd.css"; */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --theme: #2970ff;

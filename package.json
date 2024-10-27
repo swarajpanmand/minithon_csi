@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ant-design/charts": "^1.4.3",
+    "@ant-design/charts": "^2.2.1",
     "antd": "^5.15.3",
     "firebase": "^10.9.0",
     "moment": "^2.30.1",

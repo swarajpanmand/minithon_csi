@@ -29,3 +29,11 @@
 .card-blue{
   background: linear-gradient(67.6deg, rgb(225, 242, 254) -2.8%, rgb(193, 224, 250) 44.6%, rgb(19, 116, 197) 102.4%);
 }
+
+.card-green {
+  background: linear-gradient(67.6deg, rgb(225, 254, 225) -2.8%, rgb(193, 250, 193) 44.6%, rgb(19, 197, 116) 102.4%);
+}
+
+.card-red {
+  background: linear-gradient(67.6deg, rgb(254, 225, 225) -2.8%, rgb(250, 193, 193) 44.6%, rgb(197, 19, 19) 102.4%);
+}

@@ -4,7 +4,14 @@ import Cards from "../components/Cards";
 import { Modal } from "antd";
 import AddExpense from "../components/Modals/AddExpense";
 import AddIncome from "../components/Modals/AddIncome";
-import { addDoc, collection, getDoc, getDocs, query, deleteDoc  } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDoc,
+  getDocs,
+  query,
+  deleteDoc,
+} from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { toast } from "react-toastify";
 import moment from "moment";
@@ -12,6 +19,9 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import TransactionsTable from "../components/TransactionsTable";
 import ChartComponent from "../components/Charts";
 import NoTransactions from "../components/NoTransactions";
+import FinancialWellnessScore from "../components/WellnessScore/FinancialWellnessScore";
+import PaymentCalender from "../components/PaymentCalender/PaymentCalender";
+import DashBoardLoader from "../components/DashboardLoader/DashboardLoader";
 
 function Dashboard() {
   const [transactions, setTransactions] = useState([]);
@@ -110,17 +120,19 @@ function Dashboard() {
   const resetBalance = async () => {
     try {
       // Retrieve all documents in the collection
-      const querySnapshot = await getDocs(collection(db, `users/${user.uid}/transactions`));
+      const querySnapshot = await getDocs(
+        collection(db, `users/${user.uid}/transactions`)
+      );
       // Delete each document in the collection
       querySnapshot.forEach(async (doc) => {
         await deleteDoc(doc.ref);
       });
-  
+
       // Notify user and update state if needed
       setIncome(0);
       setExpense(0);
       setTotalBalance(0);
-      
+
       toast.success("Balance reset successfully!");
       fetchTransactions();
     } catch (error) {
@@ -128,7 +140,7 @@ function Dashboard() {
       toast.error(error.message);
     }
   };
-  
+
   let sortedTransactions = transactions.sort((a, b) => {
     return new Date(a.date) - new Date(b.date);
   });
@@ -137,7 +149,7 @@ function Dashboard() {
     <div>
       <Header />
       {loading ? (
-        <p>Loading...</p>
+        <DashBoardLoader />
       ) : (
         <>
           <Cards
@@ -148,7 +160,11 @@ function Dashboard() {
             showExpenseModal={showExpenseModal}
             showIncomeModal={showIncomeModal}
           />
-          {transactions && transactions.length != 0 ? <ChartComponent sortedTransactions={sortedTransactions}/> : <NoTransactions />}
+          {transactions && transactions.length != 0 ? (
+            <ChartComponent sortedTransactions={sortedTransactions} />
+          ) : (
+            <NoTransactions />
+          )}
           <AddIncome
             isIncomeModalVisible={isIncomeModalVisible}
             handleIncomeCancel={handleIncomeCancel}
@@ -159,6 +175,9 @@ function Dashboard() {
             handleExpenseCancel={handleExpenseCancel}
             onFinish={onFinish}
           />
+
+          <FinancialWellnessScore transactions={transactions} />
+          <PaymentCalender transactions={transactions} />
 
           <TransactionsTable
             transactions={transactions}

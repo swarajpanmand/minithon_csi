@@ -9,6 +9,13 @@
     align-items: center;
     z-index: 1000;
 }
+.fin-logo{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: auto;
+    height: auto;
+}
 
 .logo{
     color: var(--theme);

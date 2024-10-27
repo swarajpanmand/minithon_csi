@@ -12,15 +12,15 @@ function Cards({income, expense, totalBalance, showIncomeModal, showExpenseModal
           <p>₹{totalBalance}</p>
           <Button text="Reset Balance" onClick={resetBalance}/>
         </Card>
-        <Card bordered={true} className="my-card">
+        <Card bordered={true} className="my-card card-green">
           <h2>Income</h2>
           <p>₹{income}</p>
-          <Button text="Add Income" onClick={showIncomeModal} blue={true}/>
+          <Button text="Add Income" onClick={showIncomeModal} blue={false}/>
         </Card>
-        <Card bordered={true} className="my-card">
+        <Card bordered={true} className="my-card card-red">
           <h2>Expenses</h2>
           <p>₹{expense}</p> 
-          <Button text="Add Expenses" onClick={showExpenseModal} blue={true}/>
+          <Button text="Add Expenses" onClick={showExpenseModal} blue={false}/>
         </Card>
       </Row>
     </div>

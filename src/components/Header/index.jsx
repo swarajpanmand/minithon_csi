@@ -6,7 +6,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getAuth, signOut } from "firebase/auth";
 import defaultImg from "../../assets/user.svg";
-
+import finacSyncLogo from "../../assets/finansync.png";
 function Header() {
   const [user, loading] = useAuthState(auth);
   const navigate = useNavigate();
@@ -32,14 +32,21 @@ function Header() {
   }
   return (
     <div className="navbar">
-      <p className="logo">FinanceFlow.</p>
+      <div className="fin-logo">
+        <img
+          src={finacSyncLogo}
+          alt=""
+          style={{ borderRadius: "15%", height: "2.5rem", width: "2.5rem" }}
+        />
+        <p className="logo">FinanSync.</p>
+      </div>
+
       {user && (
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <img
             src={user.photoURL ? user.photoURL : defaultImg}
             alt=""
-            style={{ borderRadius: "15%",height:"1.5rem",
-            width:"1.5rem" }}
+            style={{ borderRadius: "15%", height: "1.4rem", width: "1.4rem" }}
           />
           <p className="logo link" onClick={logoutFnc}>
             Logout

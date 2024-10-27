@@ -139,7 +139,7 @@ function SignupSigninComponent() {
           // Handle Errors here.
           const errorCode = error.code;
           const errorMessage = error.message;
-          toast.error(errorMessage)
+          toast.error(errorMessage);
         });
     } catch (e) {
       toast.error(e.message);
@@ -152,7 +152,7 @@ function SignupSigninComponent() {
       {loginForm ? (
         <div className="signup-wrapper">
           <h2 className="title">
-            Login on <span style={{ color: "var(--theme)" }}>FinanceFlow.</span>
+            Login on <span style={{ color: "var(--theme)" }}>FinanSync.</span>
           </h2>
           <form>
             <Input
@@ -191,7 +191,7 @@ function SignupSigninComponent() {
         <div className="signup-wrapper">
           <h2 className="title">
             Sign Up on{" "}
-            <span style={{ color: "var(--theme)" }}>FinanceFlow.</span>
+            <span style={{ color: "var(--theme)" }}>FinanSync.</span>
           </h2>
           <form>
             <Input
