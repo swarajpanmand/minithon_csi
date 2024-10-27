@@ -1,8 +1,21 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Personal Finance Dashboard
 
-Currently, two official plugins are available:
+This repository contains the source code for the **Personal Finance Dashboard** web application, designed to help users track their income and expenses, calculate their total balance, visualize their financial data, and stay on top of their personal finance goals.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
+
+- **Income & Expense Tracking**: Easily add, view, and manage transactions, including income and expenses.
+- **Financial Summary Cards**: Display the total income, total expenses, and current balance.
+- **Financial Wellness Score**: Assess financial wellness based on spending habits and trends.
+- **Payment Calendar**: Visual overview of upcoming and past payments.
+- **Data Visualization**: Charts and graphs to visually understand spending and income trends.
+- **Reset Balance**: Option to reset all financial data.
+
+## Tech Stack
+
+- **Frontend**: React, Ant Design, react-toastify for notifications
+- **Backend**: Firebase Firestore for data storage and authentication
+- **Authentication**: Firebase Auth (via `react-firebase-hooks`)
+- **Deployment**: Netlify
+
